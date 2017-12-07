@@ -18,7 +18,7 @@ class GoogleSheetParser
 	# the user's default browser will be launched to approve the request.
 	#
 	# @return [Google::Auth::UserRefreshCredentials] OAuth2 credentials
-	def authorize
+	def self.authorize
 	  FileUtils.mkdir_p(File.dirname(CREDENTIALS_PATH))
 
 	  client_id = Google::Auth::ClientId.from_file(CLIENT_SECRETS_PATH)
@@ -40,7 +40,7 @@ class GoogleSheetParser
 	  credentials
 	end
 
-	def testing
+	def self.testing
 		# Initialize the API
 		service = Google::Apis::SheetsV4::SheetsService.new
 		service.client_options.application_name = APPLICATION_NAME
@@ -48,8 +48,8 @@ class GoogleSheetParser
 
 		# Prints the names and majors of students in a sample spreadsheet:
 		# https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
-		spreadsheet_id = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms'
-		range = 'Class Data!A2:E'
+		spreadsheet_id = '1IKJeLNo-N3NcBf3VzDy0iVpt08LPNdQHPNwu5xLn4yE'
+		range = 'Color-coded by faction!A4:A26'
 		response = service.get_spreadsheet_values(spreadsheet_id, range)
 		puts 'Name, Major:'
 		puts 'No data found.' if response.values.empty?
@@ -57,5 +57,6 @@ class GoogleSheetParser
 		  # Print columns A and E, which correspond to indices 0 and 4.
 		  puts "#{row[0]}, #{row[4]}"
 		end
+		puts '***NEW URL***'
 	end
 end
