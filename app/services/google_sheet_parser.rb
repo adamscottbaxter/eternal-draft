@@ -49,14 +49,26 @@ class GoogleSheetParser
 		# Prints the names and majors of students in a sample spreadsheet:
 		# https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
 		spreadsheet_id = '1IKJeLNo-N3NcBf3VzDy0iVpt08LPNdQHPNwu5xLn4yE'
-		range = 'Color-coded by faction!A4:A26'
-		response = service.get_spreadsheet_values(spreadsheet_id, range)
-		puts 'Name, Major:'
-		puts 'No data found.' if response.values.empty?
-		response.values.each do |row|
-		  # Print columns A and E, which correspond to indices 0 and 4.
-		  puts "#{row[0]}, #{row[4]}"
-		end
-		puts '***NEW URL***'
+		range = 'Color-coded by faction!A4:C41'
+		response = service.batch_get_spreadsheet_values(spreadsheet_id, ranges: range_names)
+		puts response.to_json['valueRanges']
+	end
+
+	private
+
+	def self.range_names
+		[
+			'A4:A200',
+			'C4:C200',
+			'E4:E200',
+			'G4:G200',
+			'I4:I200',
+			'K4:K200',
+			'M4:M200',
+			'Q4:Q200',
+			'S4:S200',
+			'U4:U200',
+			'W4:W200'
+    ]
 	end
 end
