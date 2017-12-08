@@ -11,20 +11,35 @@ class GoogleSheetParser
 	CREDENTIALS_PATH = File.join(Dir.home, '.credentials',
 	                             "sheets.googleapis.com-ruby-quickstart.yaml")
 	SCOPE = Google::Apis::SheetsV4::AUTH_SPREADSHEETS_READONLY
+	TIER_SHEET_ID = '1IKJeLNo-N3NcBf3VzDy0iVpt08LPNdQHPNwu5xLn4yE'
 
-	##
-	# Ensure valid credentials, either by restoring from the saved credentials
-	# files or intitiating an OAuth2 authorization. If authorization is required,
-	# the user's default browser will be launched to approve the request.
-	#
-	# @return [Google::Auth::UserRefreshCredentials] OAuth2 credentials
+	def self.build_cards_and_tiers
+		draft_ranking_groups.each do |tier_section|
+			values_array = tier_section.values
+			tier_name = values_array.first.first
+			current_tier = Tier.where(name: tier_name).first_or_create
+			values_array[1..-1].each do |card_name|
+				Card.where(name: card_name.first).first_or_create(tier_id: current_tier.id)
+			end
+		end
+	end
+
+	private
+
+	def self.draft_ranking_groups
+		service = Google::Apis::SheetsV4::SheetsService.new
+		service.client_options.application_name = APPLICATION_NAME
+		service.authorization = authorize
+		spreadsheet_id = TIER_SHEET_ID
+		response = service.batch_get_spreadsheet_values(spreadsheet_id, ranges: range_names)
+		response.value_ranges
+	end
+
 	def self.authorize
 	  FileUtils.mkdir_p(File.dirname(CREDENTIALS_PATH))
-
 	  client_id = Google::Auth::ClientId.from_file(CLIENT_SECRETS_PATH)
 	  token_store = Google::Auth::Stores::FileTokenStore.new(file: CREDENTIALS_PATH)
-	  authorizer = Google::Auth::UserAuthorizer.new(
-	    client_id, SCOPE, token_store)
+	  authorizer = Google::Auth::UserAuthorizer.new(client_id, SCOPE, token_store)
 	  user_id = 'default'
 	  credentials = authorizer.get_credentials(user_id)
 	  if credentials.nil?
@@ -39,31 +54,6 @@ class GoogleSheetParser
 	  end
 	  credentials
 	end
-
-	def self.read_draft_rankings
-		# Initialize the API
-		service = Google::Apis::SheetsV4::SheetsService.new
-		service.client_options.application_name = APPLICATION_NAME
-		service.authorization = authorize
-
-		# Prints the names and majors of students in a sample spreadsheet:
-		# https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
-		spreadsheet_id = '1IKJeLNo-N3NcBf3VzDy0iVpt08LPNdQHPNwu5xLn4yE'
-		response = service.batch_get_spreadsheet_values(spreadsheet_id, ranges: range_names)
-		
-		tier_groups = response.value_ranges
-
-		tier_groups.each do |tier|
-			values_array = tier.values
-			tier_name = values_array.first
-			values_array[1..-1].each do |card_name|
-				puts "#{tier_name.first}: #{card_name.first}"
-				Card.first_or_create(name: card_name.first, tier: )
-			end
-		end
-	end
-
-	private
 
 	def self.range_names
 		[
