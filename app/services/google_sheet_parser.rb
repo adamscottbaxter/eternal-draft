@@ -50,24 +50,34 @@ class GoogleSheetParser
 		# https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
 		spreadsheet_id = '1IKJeLNo-N3NcBf3VzDy0iVpt08LPNdQHPNwu5xLn4yE'
 		response = service.batch_get_spreadsheet_values(spreadsheet_id, ranges: range_names)
-		puts response.to_json['valueRanges']
+		
+		tier_groups = response.value_ranges
+
+		tier_groups.each do |tier|
+			values_array = tier.values
+			tier_name = values_array.first
+			values_array[1..-1].each do |card_name|
+				puts "#{tier_name.first}: #{card_name.first}"
+				Card.first_or_create(name: card_name.first, tier: )
+			end
+		end
 	end
 
 	private
 
 	def self.range_names
 		[
-			'A4:A200',
-			'C4:C200',
-			'E4:E200',
-			'G4:G200',
-			'I4:I200',
-			'K4:K200',
-			'M4:M200',
-			'Q4:Q200',
-			'S4:S200',
-			'U4:U200',
-			'W4:W200'
+			'A3:A200',
+			'C3:C200',
+			'E3:E200',
+			'G3:G200',
+			'I3:I200',
+			'K3:K200',
+			'M3:M200',
+			'Q3:Q200',
+			'S3:S200',
+			'U3:U200',
+			'W3:W200'
     ]
 	end
 end
