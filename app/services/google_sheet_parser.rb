@@ -40,7 +40,7 @@ class GoogleSheetParser
 	  credentials
 	end
 
-	def self.testing
+	def self.read_draft_rankings
 		# Initialize the API
 		service = Google::Apis::SheetsV4::SheetsService.new
 		service.client_options.application_name = APPLICATION_NAME
@@ -49,7 +49,6 @@ class GoogleSheetParser
 		# Prints the names and majors of students in a sample spreadsheet:
 		# https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
 		spreadsheet_id = '1IKJeLNo-N3NcBf3VzDy0iVpt08LPNdQHPNwu5xLn4yE'
-		range = 'Color-coded by faction!A4:C41'
 		response = service.batch_get_spreadsheet_values(spreadsheet_id, ranges: range_names)
 		puts response.to_json['valueRanges']
 	end
